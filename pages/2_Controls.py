@@ -1,13 +1,15 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from mqtt_utils import publish_message
 import streamlit as st
-from mqtt_utils import send_command
 
 st.title("🎛️ Controles del Sistema")
 
-# ==========================
-# LUCES (equivalente a "bomba")
-# Topic que vamos a usar:
+
 TOPIC = "casa/luces/bomba"
-# ==========================
+
 
 st.subheader("Encender/Apagar la bomba")
 
@@ -25,9 +27,7 @@ with col2:
 
 st.write("---")
 
-# -------------------------------
-#  CONTROL POR TEXTO
-# -------------------------------
+
 st.subheader("Control por texto")
 cmd = st.text_input("Escribe 'encender' o 'apagar'")
 
@@ -43,9 +43,7 @@ if st.button("Enviar texto"):
 
 st.write("---")
 
-# -------------------------------
-#  CONTROL POR VOZ
-# -------------------------------
+
 st.subheader("Control por voz")
 st.write("Haz clic para grabar:")
 
