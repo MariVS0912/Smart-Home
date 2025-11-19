@@ -1,25 +1,68 @@
 import paho.mqtt.client as mqtt
 import ssl
+import streamlit as st
 
-# -----------------------------
-# CONFIGURACIÓN MQTT FIJA
-# -----------------------------
-MQTT_BROKER = "tu_broker.hivemq.cloud"
-MQTT_PORT = 8883
-MQTT_USER = "tu_usuario"
-MQTT_PASSWORD = "tu_password"
+# Callback cuando el cliente se conecta al broker
 
-TOPIC_SENSORES = "casa/sensores/#"
-TOPIC_CONTROL = "casa/control"
+def on_connect(client, userdata, flags, rc):
+if rc == 0:
+print("Conectado al broker MQTT exitosamente.")
+else:
+print(f"Error al conectar, código: {rc}")
 
-# Diccionario donde guardaremos los datos recibidos
-sensor_data = {
-    "temp": None,
-    "humedad": None,
-    "luz": None
-}
+# Callback cuando llega un mensaje
 
-client = mqtt.Client(protocol=mqtt.MQTTv311)
+def on_message(client, userdata, msg):
+print(f"Mensaje recibido en {msg.topic}: {msg.payload.decode()}")
+
+# Función principal para conectar MQTT
+
+def connect_mqtt(broker="TU_BROKER", port=8883, username=None, password=None):
+# Guardar el cliente en session_state para evitar reconexión múltiple
+if "mqtt_client" not in st.session_state:
+client = mqtt.Client()
+
+```
+    # Configurar TLS solo si no está configurado
+    if not hasattr(client, "_ssl_context"):
+        client.tls_set(cert_reqs=ssl.CERT_NONE)
+
+    # Configurar usuario y contraseña si aplica
+    if username and password:
+        client.username_pw_set(username, password)
+
+    # Asignar callbacks
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    # Conectar y arrancar loop
+    client.connect(broker, port)
+    client.loop_start()
+
+    st.session_state.mqtt_client = client
+else:
+    client = st.session_state.mqtt_client
+
+return client
+```
+
+# Función para publicar mensajes
+
+def publish(topic, payload):
+client = st.session_state.get("mqtt_client")
+if client:
+client.publish(topic, payload)
+else:
+print("El cliente MQTT no está conectado.")
+
+# Función para suscribirse a un topic
+
+def subscribe(topic):
+client = st.session_state.get("mqtt_client")
+if client:
+client.subscribe(topic)
+else:
+print("El cliente MQTT no está conectado.")
 
 
 # -----------------------------
