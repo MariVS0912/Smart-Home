@@ -1,23 +1,28 @@
 import streamlit as st
-from mqtt_utils import connect_mqtt, get_sensor_data
 import pandas as pd
+from mqtt_utils import connect_mqtt, get_sensor_data
 
-st.header("Dashboard - Sensores")
+st.header("Dashboard - Sensores y Estado de Dispositivos")
 connect_mqtt()
 
-temperatura_msgs = get_sensor_data("casa/sensores/temperatura")
-luminosidad_msgs = get_sensor_data("casa/sensores/luminosidad")
+# Sensores
+temperatura_msgs = get_sensor_data("casa/sensores/temperatura")[-10:]
+luminosidad_msgs = get_sensor_data("casa/sensores/luminosidad")[-10:]
 
-# Convertir a números si vienen en string
-temperatura = [int(msg.split(":")[-1]) for msg in temperatura_msgs[-10:]]
-luminosidad = [int(msg.split(":")[-1]) for msg in luminosidad_msgs[-10:]]
+temperatura = [int(m.split(":")[-1]) for m in temperatura_msgs]
+luminosidad = [int(m.split(":")[-1]) for m in luminosidad_msgs]
 
-st.subheader("Temperatura (°C)")
-st.line_chart(pd.DataFrame(temperatura, columns=["Temperatura"]))
+# Mostrar tarjetas de estado actual
+col1, col2 = st.columns(2)
+col1.metric("Temperatura (°C)", temperatura[-1] if temperatura else "-")
+col2.metric("Luminosidad (lux)", luminosidad[-1] if luminosidad else "-")
 
-st.subheader("Luminosidad (lux)")
-st.line_chart(pd.DataFrame(luminosidad, columns=["Luminosidad"]))
+# Gráficos
+st.subheader("Historial de sensores")
+st.line_chart(pd.DataFrame({"Temperatura": temperatura, "Luminosidad": luminosidad}))
 
-st.write("Últimos mensajes de sensores:")
-for msg in temperatura_msgs[-5:] + luminosidad_msgs[-5:]:
+# Últimos mensajes
+st.subheader("Últimos mensajes de sensores")
+for msg in temperatura_msgs + luminosidad_msgs:
     st.write(msg)
+
