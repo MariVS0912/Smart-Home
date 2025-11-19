@@ -14,13 +14,13 @@ client = connect_mqtt(broker="TU_BROKER", port=8883, username="TU_USUARIO", pass
 
 st.header("Luces")
 if st.button("Encender luz sala"):
-publish("casa/luz/sala", "ON")
+  publish("casa/luz/sala", "ON")
 if st.button("Apagar luz sala"):
-publish("casa/luz/sala", "OFF")
+  publish("casa/luz/sala", "OFF")
 
 if st.button("Encender luz habitación"):
-publish("casa/luz/habitacion", "ON")
+  publish("casa/luz/habitacion", "ON")
 if st.button("Apagar luz habitación"):
-publish("casa/luz/habitacion", "OFF")
+  publish("casa/luz/habitacion", "OFF")
 
 # Sección: Control de
