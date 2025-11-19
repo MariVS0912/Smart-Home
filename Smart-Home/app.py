@@ -12,6 +12,6 @@ st.sidebar.title("Navegación")
 page = st.sidebar.selectbox("Ir a:", ["Home Status", "Controles"])
 
 if page == "Home Status":
-    import pages.1_HomeStatus
+    import pages.1-HomeStatus
 elif page == "Controles":
-    import pages.2_Controls
+    import pages.2-Controls
