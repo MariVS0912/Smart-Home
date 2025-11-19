@@ -1,24 +1,15 @@
 import streamlit as st
-from mqtt_utils import get_sensor_data
+from mqtt_utils import get_sensor_data, connect_mqtt
 
-st.title("📊 Dashboard de Sensores")
+# Conectar al broker si no lo está
+connect_mqtt(broker="TU_BROKER", port=8883, username="TU_USUARIO", password="TU_PASSWORD")
 
-st.write("Lectura en tiempo real desde el ESP32 por MQTT.")
+st.header("Dashboard - Sensores")
 
-# Obtener los datos del broker
-data = get_sensor_data()
+# Suscribirse a sensores
+temperatura = get_sensor_data("casa/sensor/temperatura")
+humedad = get_sensor_data("casa/sensor/humedad")
 
-# Si no hay datos
-if not data:
-    st.warning("Aún no llegan datos del ESP32…")
-else:
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric("🌡️ Temperatura (°C)", data.get("temp", "—"))
-
-    with col2:
-        st.metric("💧 Humedad (%)", data.get("humedad", "—"))
-
-    with col3:
-        st.metric("💡 Luz (lx)", data.get("luz", "—"))
+st.write("Últimos mensajes de sensores:")
+for msg in temperatura[-5:] + humedad[-5:]:
+    st.write(msg)
