@@ -1,40 +1,67 @@
-import os
-import time
-import json
 import paho.mqtt.client as mqtt
 
-BROKER = os.getenv("MQTT_BROKER", "broker.hivemq.com")
-PORT = int(os.getenv("MQTT_PORT", 1883))
-TOPIC_SENSOR = os.getenv("MQTT_TOPIC_SENSOR", "smartgarden/sensor")
-TOPIC_CONTROL = os.getenv("MQTT_TOPIC_CONTROL", "smartgarden/control")
-
-client = mqtt.Client()
-
-last_sensor_value = {
-    "soil": 0,
-    "temperature": 0
+data = {
+    "temperature": 0,
+    "light": 0,
+    "soil": 0,                # Si luego quieres agregar humedad real
+    "sala": "off",
+    "cocina": "off",
+    "habitacion": "off",
+    "ventana": 0
 }
 
-def on_connect(client, userdata, flags, rc):
-    client.subscribe(TOPIC_SENSOR)
+# -------------------------
+# CALLBACK DE MENSAJES
+# -------------------------
 
 def on_message(client, userdata, msg):
-    global last_sensor_value
-    try:
-        data = json.loads(msg.payload.decode())
-        last_sensor_value = data
-    except:
-        pass
+    topic = msg.topic
+    payload = msg.payload.decode()
 
-def connect_mqtt():
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.connect(BROKER, PORT, 60)
-    client.loop_start()
+    # ----- Sensores -----
+    if topic == "casa/sensores/temperatura":
+        data["temperature"] = float(payload)
+
+    if topic == "casa/sensores/luminosidad":
+        data["light"] = float(payload)
+
+    if topic == "casa/sensores/humedad":
+        data["soil"] = float(payload)
+
+    # ----- Luces -----
+    if topic == "casa/luces/sala":
+        data["sala"] = payload
+
+    if topic == "casa/luces/cocina":
+        data["cocina"] = payload
+
+    if topic == "casa/luces/habitacion":
+        data["habitacion"] = payload
+
+    # ----- Ventana (servo) -----
+    if topic == "casa/ventanas":
+        data["ventana"] = int(payload)
+
+# -------------------------
+# FUNCIÓN PARA STREAMLIT
+# -------------------------
 
 def get_sensor_data():
-    return last_sensor_value
+    return data
 
-def send_command(cmd):
-    client.publish(TOPIC_CONTROL, json.dumps({"pump": cmd}))
-    time.sleep(0.1)
+# -------------------------
+# CONFIG MQTT
+# -------------------------
+
+client = mqtt.Client()
+client.on_message = on_message
+
+client.connect("broker.hivemq.com", 1883, 60)
+
+# Suscribirse a TODO lo del proyecto
+client.subscribe("casa/sensores/#")
+client.subscribe("casa/luces/#")
+client.subscribe("casa/ventanas")
+
+client.loop_start()
+
