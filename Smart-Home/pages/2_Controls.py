@@ -1,10 +1,10 @@
 import streamlit as st
-from mqtt_utils import publish_message, connect_mqtt
-
-# Conectar al broker si no lo está
-connect_mqtt(broker="TU_BROKER", port=8883, username="TU_USUARIO", password="TU_PASSWORD")
+from mqtt_utils import connect_mqtt, publish_message
 
 st.header("Controles - Dispositivos")
+
+# Conectar al broker si no lo está
+connect_mqtt()
 
 # Luces
 if st.button("Encender luz sala"):
@@ -27,3 +27,4 @@ if st.button("Encender enchufe lámpara"):
     publish_message("casa/enchufe/lampara", "ON")
 if st.button("Apagar enchufe lámpara"):
     publish_message("casa/enchufe/lampara", "OFF")
+
