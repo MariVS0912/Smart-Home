@@ -1,12 +1,12 @@
 import streamlit as st
-from mqtt_utils import get_sensor_data, connect_mqtt
-
-# Conectar al broker si no lo está
-connect_mqtt(broker="TU_BROKER", port=8883, username="TU_USUARIO", password="TU_PASSWORD")
+from mqtt_utils import connect_mqtt, get_sensor_data
 
 st.header("Dashboard - Sensores")
 
-# Suscribirse a sensores
+# Conectar al broker si no lo está
+connect_mqtt()
+
+# Suscribirse a sensores de ejemplo
 temperatura = get_sensor_data("casa/sensor/temperatura")
 humedad = get_sensor_data("casa/sensor/humedad")
 
