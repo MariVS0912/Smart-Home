@@ -1,13 +1,26 @@
 import streamlit as st
-from mqtt_utils import connect_mqtt
+from mqtt_utils import connect_mqtt, publish, subscribe
 
-st.set_page_config(page_title="SmartHome", page_icon="🌱")
+# Configuración de la página
 
-st.title("SmartHome – Sistema Inteligente de Riego")
-st.write("Controla tu jardín con sensores, voz y automatización.")
+st.set_page_config(page_title="Smart-Home", page_icon="🏠")
+st.title("Smart-Home – Controla tu casa desde el celular")
 
-if "mqtt_started" not in st.session_state:
-    connect_mqtt()
-    st.session_state["mqtt_started"] = True
+# Conectar al broker MQTT (se guarda en session_state)
 
-st.write("Selecciona una página en el menú de la izquierda.")
+client = connect_mqtt(broker="TU_BROKER", port=8883, username="TU_USUARIO", password="TU_PASSWORD")
+
+# Sección: Control de luces
+
+st.header("Luces")
+if st.button("Encender luz sala"):
+publish("casa/luz/sala", "ON")
+if st.button("Apagar luz sala"):
+publish("casa/luz/sala", "OFF")
+
+if st.button("Encender luz habitación"):
+publish("casa/luz/habitacion", "ON")
+if st.button("Apagar luz habitación"):
+publish("casa/luz/habitacion", "OFF")
+
+# Sección: Control de
