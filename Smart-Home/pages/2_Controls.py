@@ -1,68 +1,65 @@
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
-from mqtt_utils import publish_message
 import streamlit as st
+from mqtt_utils import publish_message
 
 st.title("🎛️ Controles del Sistema")
+st.write("Controla el sistema enviando comandos MQTT.")
 
-
-TOPIC = "casa/luces/bomba"
-
-
-st.subheader("Encender/Apagar la bomba")
+# --- Botones de Encender / Apagar ---
+st.subheader("Encender / Apagar Bomba")
 
 col1, col2 = st.columns(2)
 
 with col1:
     if st.button("Encender"):
-        send_command(TOPIC, "on")
+        publish_message("ON")
         st.success("Bomba encendida")
 
 with col2:
     if st.button("Apagar"):
-        send_command(TOPIC, "off")
+        publish_message("OFF")
         st.error("Bomba apagada")
 
 st.write("---")
 
-
+# --- Control por texto ---
 st.subheader("Control por texto")
-cmd = st.text_input("Escribe 'encender' o 'apagar'")
+
+cmd = st.text_input("Escribe 'encender' o 'apagar':")
 
 if st.button("Enviar texto"):
-    if "encender" in cmd.lower():
-        send_command(TOPIC, "on")
+    text = cmd.lower()
+
+    if "encender" in text:
+        publish_message("ON")
         st.success("Bomba encendida por texto")
-    elif "apagar" in cmd.lower():
-        send_command(TOPIC, "off")
+    elif "apagar" in text:
+        publish_message("OFF")
         st.error("Bomba apagada por texto")
     else:
         st.warning("Comando no válido")
 
 st.write("---")
 
+# --- Control por voz ---
+st.subheader("Control por voz (si tu navegador lo soporta)")
 
-st.subheader("Control por voz")
-st.write("Haz clic para grabar:")
-
-audio = st.audio_input("Habla aquí")
+audio = st.audio_input("Habla aquí:")
 
 if audio:
-    try:
-        text = st.experimental_audio_to_text(audio)
-        if text:
-            st.write("Detectado:", text)
+    st.write("Procesando audio…")
+    text = st.experimental_audio_to_text(audio)
 
-            if "encender" in text.lower():
-                send_command(TOPIC, "on")
-                st.success("Bomba encendida por voz")
+    if text:
+        st.write("Detectado:", text)
 
-            elif "apagar" in text.lower():
-                send_command(TOPIC, "off")
-                st.error("Bomba apagada por voz")
+        text_l = text.lower()
 
-    except:
-        st.warning("No se pudo interpretar el audio.")
+        if "encender" in text_l:
+            publish_message("ON")
+            st.success("Bomba encendida por voz")
+        elif "apagar" in text_l:
+            publish_message("OFF")
+            st.error("Bomba apagada por voz")
+        else:
+            st.warning("No se detectó un comando válido.")
 
