@@ -1,13 +1,14 @@
 import os
 import paho.mqtt.client as mqtt
-import ssl
 
-MQTT_BROKER = os.getenv("MQTT_BROKER")
-MQTT_PORT = int(os.getenv("MQTT_PORT"))
-MQTT_USER = os.getenv("MQTT_USER")
-MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
-TOPIC_STATUS = os.getenv("TOPIC_STATUS")
-TOPIC_CONTROL = os.getenv("TOPIC_CONTROL")
+MQTT_BROKER = os.getenv("MQTT_BROKER", "tu-broker.hivemq.cloud")
+MQTT_PORT = int(os.getenv("MQTT_PORT", "8883"))
+MQTT_USER = os.getenv("MQTT_USER", "tu_usuario")
+MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "tu_password")
+
+TOPIC_STATUS = "smarthome/status"
+TOPIC_CONTROL = "smarthome/control"
+
 
 last_message = {"status": "OFF"}
 
