@@ -1,5 +1,4 @@
 import paho.mqtt.client as mqtt
-import ssl
 import streamlit as st
 
 # Callback cuando el cliente se conecta al broker
@@ -17,14 +16,13 @@ def on_message(client, userdata, msg):
         st.session_state.mqtt_messages = []
     st.session_state.mqtt_messages.append(decoded)
 
-# Conectar al broker MQTT
-def connect_mqtt(broker="TU_BROKER", port=8883, username=None, password=None):
+# Conectar al broker MQTT (broker de prueba)
+def connect_mqtt():
+    broker = "test.mosquitto.org"
+    port = 1883
+
     if "mqtt_client" not in st.session_state:
         client = mqtt.Client()
-        if not hasattr(client, "_ssl_context"):
-            client.tls_set(cert_reqs=ssl.CERT_NONE)
-        if username and password:
-            client.username_pw_set(username, password)
         client.on_connect = on_connect
         client.on_message = on_message
         client.connect(broker, port)
@@ -34,24 +32,20 @@ def connect_mqtt(broker="TU_BROKER", port=8883, username=None, password=None):
         client = st.session_state.mqtt_client
     return client
 
-def publish(topic, payload):
+# Publicar mensaje
+def publish_message(topic, message):
     client = st.session_state.get("mqtt_client")
     if client:
-        client.publish(topic, payload)
+        client.publish(topic, message)
     else:
         print("El cliente MQTT no está conectado.")
 
-def subscribe(topic):
+# Suscribirse a un topic y obtener datos
+def get_sensor_data(topic):
     client = st.session_state.get("mqtt_client")
     if client:
         client.subscribe(topic)
-    else:
-        print("El cliente MQTT no está conectado.")
-
-def publish_message(topic, message):
-    publish(topic, message)
-
-def get_sensor_data(topic):
-    subscribe(topic)
-    return st.session_state.get("mqtt_messages", [])
+    if "mqtt_messages" not in st.session_state:
+        st.session_state.mqtt_messages = []
+    return st.session_state.mqtt_messages
 
