@@ -1,29 +1,34 @@
-# pages/home_status.py
 import streamlit as st
-from mqtt_utils import get_sensor_data, get_device_status, publish_message
+from mqtt_utils import get_mqtt_message
 
-st.header("Estado de la Casa")
+def app(broker, port, topic_sensors, client_id):
+st.title("🏡 Estado de la Casa Inteligente")
 
-habitaciones = {
-    "Sala": [
-        "casa/luces/sala",
-        "casa/enchufe/televisor"
-    ],
-    "Cocina": [
-        "casa/luces/cocina"
-    ],
-    "Habitación": [
-        "casa/luces/habitacion",
-        "casa/enchufe/lampara"
-    ]
-}
+```
+with st.expander('ℹ️ Información', expanded=False):
+    st.markdown("""
+    Esta página muestra los datos actuales de los sensores de tu Smart-Home.
+    Presiona **Obtener Datos** para recibir la información más reciente del broker MQTT.
+    """)
 
-for hab, dispositivos in habitaciones.items():
-    with st.expander(hab):
-        for dev in dispositivos:
-            estado = get_device_status(dev)
-            st.write(f"{dev.split('/')[-1].capitalize()}: {estado}")
+if st.button('🔄 Obtener Datos'):
+    with st.spinner('Conectando al broker y esperando datos...'):
+        sensor_data = get_mqtt_message(broker, int(port), topic_sensors, client_id)
+        st.session_state.sensor_data = sensor_data
 
-            if st.button(f"Tog {dev}", key=f"{dev}_toggle"):
-                nuevo_estado = "OFF" if estado == "ON" else "ON"
-                publish_message(dev, nuevo_estado)
+if 'sensor_data' in st.session_state and st.session_state.sensor_data:
+    data = st.session_state.sensor_data
+    if isinstance(data, dict) and 'error' in data:
+        st.error(f"❌ Error de conexión: {data['error']}")
+    else:
+        st.success('✅ Datos recibidos correctamente')
+        if isinstance(data, dict):
+            cols = st.columns(len(data))
+            for i, (key, value) in enumerate(data.items()):
+                with cols[i]:
+                    st.metric(label=key, value=value)
+            with st.expander('Ver JSON completo'):
+                st.json(data)
+        else:
+            st.code(data)
+```
