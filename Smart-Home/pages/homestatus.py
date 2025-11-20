@@ -1,8 +1,12 @@
 import streamlit as st
-from mqtt_utils import get_mqtt_message
+from mqtt_utils import get_sensor_data, connect_mqtt
 
-def app(broker, port, topic_sensors, client_id):
-st.title("🏡 Estado de la Casa Inteligente")
+def app():
+    st.title("Estado de la Casa")
+    connect_mqtt()
+
+    st.write("Temperatura:", get_sensor_data("temperatura"))
+
 
 ```
 with st.expander('ℹ️ Información', expanded=False):
