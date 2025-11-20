@@ -1,6 +1,6 @@
 import streamlit as st
-from pages.HomeStatus import app as home_app
-from pages.Controls import app as control_app
+from pages/HomeStatus import app as home_app
+from pages/Controls import app as control_app
 
 
 # ==================== Configuración de la página ====================
