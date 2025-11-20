@@ -26,6 +26,6 @@ client_id = st.text_input('ID del Cliente', value='streamlit_client')
 page = st.sidebar.selectbox("Ir a:", ["Home Status", "Controles"])
 
 if page == "Home Status":
-home_app(broker, port, topic_sensors, client_id)
+  home_app(broker, port, topic_sensors, client_id)
 elif page == "Controles":
-control_app(broker, port, topic_actuators, client_id)
+  control_app(broker, port, topic_actuators, client_id)
