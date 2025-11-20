@@ -19,11 +19,5 @@ with st.sidebar:
     topic_actuators = st.text_input('Tópico Actuadores', value='Invernadero_Daniel')
     client_id = st.text_input('ID del Cliente', value='streamlit_client')
 
-# Navegación entre páginas
-page = st.sidebar.selectbox("Ir a:", ["Home Status", "Controles"])
 
-if page == "home status":
-    home_app(broker, port, topic_sensors, client_id)
-elif page == "controles":
-    control_app(broker, port, topic_actuators, client_id)
 
