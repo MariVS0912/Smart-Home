@@ -37,13 +37,12 @@ except Exception as e:
 def send_mqtt_command(broker, port, topic, client_id, command):
 """Función para enviar comando MQTT (actuadores)"""
 try:
-client = mqtt.Client(client_id=client_id)
-client.connect(broker, port, 60)
-client.loop_start()
-payload = json.dumps(command)
-client.publish(topic, payload)
-client.loop_stop()
-client.disconnect()
+    client = mqtt.Client(client_id=client_id)
+    client.connect(broker, port, 60)
+    client.loop_start()
+    payload = json.dumps(command)
+    client.publish(topic, payload)
+    client.loop_stop()client.disconnect()
 return True
 except Exception as e:
 return {"error": str(e)}
