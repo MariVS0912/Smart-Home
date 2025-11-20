@@ -5,7 +5,13 @@ st.header("Controles de la Casa")
 
 modo = st.radio("Modo de control:", ["Botones", "Texto", "Voz"])
 
-dispositivos = ["casa/luz/sala", "casa/luz/habitacion", "casa/enchufe/televisor", "casa/enchufe/lampara"]
+dispositivos = [
+    "casa/luces/sala",
+    "casa/luces/habitacion",
+    "casa/enchufe/televisor",
+    "casa/enchufe/lampara"
+]
+
 
 def ejecutar_comando(comando):
     comando = comando.lower()
