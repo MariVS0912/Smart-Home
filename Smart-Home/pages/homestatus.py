@@ -1,8 +1,9 @@
+import streamlit as st
 import sys
 import os
 
+# --- FIX IMPORTS ---
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from mqtt_utils import get_sensor_data, connect_mqtt
 
 
@@ -37,4 +38,4 @@ def app():
         with st.expander('Ver JSON completo'):
             st.json(sensores)
     else:
-        st.info("Todavía no se han recibido datos desde los sensores.")
+        st.info("Todavía no se han recibido datos desde los sensores.")
