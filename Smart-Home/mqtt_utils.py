@@ -1,81 +1,83 @@
-# mqtt_utils.py
 import paho.mqtt.client as mqtt
-import ssl
+import streamlit as st
 
-# Variables globales donde guardamos datos
-SENSORES = {}
-DISPOSITIVOS = {}
-
-BROKER = "fe16ebafff14607be01bf00bd32f334.s1.eu.hivemq.cloud"
-PORT = 8883
-USERNAME = "marivs912"
-PASSWORD = "Nanisdciembre9*"
-
-
-# ---------------------------
-#  CALLBACKS
-# ---------------------------
+# -----------------------------
+#  CALLBACKS MQTT
+# -----------------------------
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print("✅ Conectado al broker MQTT")
-        client.subscribe("casa/#")
+        print("MQTT conectado correctamente.")
     else:
-        print("❌ Error al conectar:", rc)
-
+        print(f"Error al conectar MQTT. Código: {rc}")
 
 def on_message(client, userdata, msg):
-    global SENSORES, DISPOSITIVOS
-    
     topic = msg.topic
     payload = msg.payload.decode()
 
+    # Guardar sensores
     if topic.startswith("casa/sensores/"):
-        nombre = topic.split("/")[-1]
-        SENSORES[nombre] = payload
+        if "sensores" not in st.session_state:
+            st.session_state["sensores"] = {}
+        st.session_state["sensores"][topic.split("/")[-1]] = payload
+
+    # Guardar dispositivos
     else:
-        DISPOSITIVOS[topic] = payload
+        if "dispositivos" not in st.session_state:
+            st.session_state["dispositivos"] = {}
+        st.session_state["dispositivos"][topic] = payload
 
 
-# ---------------------------
-#   CONECTAR
-# ---------------------------
-def connect_mqtt():
+# -----------------------------
+#  CONEXIÓN MQTT
+# -----------------------------
+def connect_mqtt(broker="test.mosquitto.org", port=1883):
+    # Si ya está conectado, no repetir
+    if "mqtt_client" in st.session_state:
+        return st.session_state["mqtt_client"]
+
     client = mqtt.Client()
-
-    client.tls_set(cert_reqs=ssl.CERT_NONE)
-    client.tls_insecure_set(True)
-
-    client.username_pw_set(USERNAME, PASSWORD)
-
     client.on_connect = on_connect
     client.on_message = on_message
 
-    client.connect(BROKER, PORT)
-    client.loop_start()
+    try:
+        client.connect(broker, port)
+        client.loop_start()
+    except Exception as e:
+        st.error(f"No se pudo conectar al broker MQTT: {e}")
 
+    st.session_state["mqtt_client"] = client
     return client
 
 
-# ---------------------------
-#     PUBLICAR
-# ---------------------------
+# -----------------------------
+#  PUBLICAR
+# -----------------------------
 def publish_message(topic, payload):
-    DISPOSITIVOS[topic] = payload
-    client = mqtt.Client()
-    client.username_pw_set(USERNAME, PASSWORD)
-    client.tls_set(cert_reqs=ssl.CERT_NONE)
-    client.tls_insecure_set(True)
-    client.connect(BROKER, PORT)
-    client.publish(topic, payload)
-    client.disconnect()
+    client = st.session_state.get("mqtt_client")
+    if client:
+        client.publish(topic, payload)
+
+        # Reflejar estado inmediatamente en la UI
+        if "dispositivos" not in st.session_state:
+            st.session_state["dispositivos"] = {}
+        st.session_state["dispositivos"][topic] = payload
 
 
-# ---------------------------
-#   OBTENER DATOS
-# ---------------------------
+# -----------------------------
+#  SUSCRIBIR
+# -----------------------------
+def subscribe(topic):
+    client = st.session_state.get("mqtt_client")
+    if client:
+        client.subscribe(topic)
+
+
+# -----------------------------
+#  OBTENER DATOS
+# -----------------------------
 def get_sensor_data(sensor):
-    return SENSORES.get(sensor, "N/A")
-
+    return st.session_state.get("sensores", {}).get(sensor, "N/A")
 
 def get_device_status(topic):
-    return DISPOSITIVOS.get(topic, "OFF")
+    return st.session_state.get("dispositivos", {}).get(topic, "OFF")
+
