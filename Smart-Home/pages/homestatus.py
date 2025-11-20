@@ -1,5 +1,5 @@
 import streamlit as st
-from mqtt_utils import get_sensor_data, connect_mqtt
+from mqtt_utils.py import get_sensor_data, connect_mqtt
 
 def app():
     st.title("Estado de la Casa")
