@@ -1,10 +1,21 @@
 import streamlit as st
-import sys
-import os
+# ... otros imports ...
 
-# --- FIX IMPORTS ---
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from mqtt_utils import get_sensor_data, connect_mqtt
+# Intenta la importación directa. Si falla, solo entonces intenta el FIX IMPORTS.
+# Pero lo más probable es que falle porque tus funciones no están definidas
+# al comienzo del archivo si no se usan dentro de la función app().
+
+# REEMPLAZA EL BLOQUE PROBLEMÁTICO CON ESTO:
+try:
+    from mqtt_utils import get_sensor_data, connect_mqtt
+except ImportError:
+    # Si la importación directa falla (como ocurre a menudo en pages/)
+    # Intenta la solución de ruta que tenías originalmente
+    import sys
+    import os
+    # Navega al directorio padre y lo añade al path
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from mqtt_utils import get_sensor_data, connect_mqtt
 
 
 def app():
